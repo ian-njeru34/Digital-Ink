@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Digital Ink Admin</title><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head>
+<body><header class="nav"><a class="logo" href="index.html">Nova<span>AI</span></a><a href="index.html">← Website</a></header>
+<main class="section"><span class="eyebrow">ADMIN DASHBOARD</span><h1>Project enquiries</h1><p id="msg">Loading...</p><div id="table"></div></main>
+<script src="config.js"></script><script>
+(async()=>{
+ const msg=document.getElementById('msg'), box=document.getElementById('table');
+ if(window.SUPABASE_URL.includes('YOUR_')){msg.textContent='Configure config.js first.';return}
+ const {createClient}=window.supabase; const db=createClient(window.SUPABASE_URL,window.SUPABASE_ANON_KEY);
+ const {data,error}=await db.from('leads').select('*').order('created_at',{ascending:false});
+ if(error){msg.textContent='Could not load enquiries. Check Supabase policies.';return}
+ msg.textContent=data.length+' enquiry/enquiries';
+ if(!data.length){box.innerHTML='<p>No enquiries yet.</p>';return}
+ box.innerHTML='<div style="overflow:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Service</th><th>Message</th><th>Date</th></tr></thead><tbody>'+data.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.email)}</td><td>${esc(x.phone||'')}</td><td>${esc(x.service||'')}</td><td>${esc(x.message)}</td><td>${new Date(x.created_at).toLocaleString()}</td></tr>`).join('')+'</tbody></table></div>';
+ function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+})();
+</script></body></html>
